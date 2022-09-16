@@ -1,4 +1,4 @@
-package hrpc
+package server
 
 import (
 	"encoding/json"
