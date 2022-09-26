@@ -2,6 +2,7 @@ package worker_pool
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"testing"
@@ -12,7 +13,7 @@ func TestPool(t *testing.T) {
 }
 
 func run() {
-	pool := NewPool(context.Background(), 10, &TestDeal{})
+	pool := NewPool(context.Background(), Conf{}, &TestDeal{})
 
 	_ = pool.Start()
 	defer func() {
@@ -24,16 +25,21 @@ func run() {
 			log.Println(err.Error())
 			return
 		}
-		//if i == 567 {
-		//	_ = pool.Stop()
-		//}
 	}
-	//_ = pool.Stop()
 }
 
 type TestDeal struct {
 }
 
-func (t *TestDeal) deal(data interface{}, index uint) {
+func (t *TestDeal) handler(data interface{}, index uint) error {
 	fmt.Println(index, ": ", data.(int))
+	if data.(int)%30 == 0 {
+		return errors.New("test error")
+	}
+	return nil
+}
+
+func (t *TestDeal) deadHandler(data interface{}) error {
+	fmt.Println(" dead : ", data.(int))
+	return nil
 }
